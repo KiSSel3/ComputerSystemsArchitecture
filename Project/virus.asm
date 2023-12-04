@@ -25,6 +25,7 @@ KB      PROC
         PUSHF
         CALL            CS:KBHANDLER
         MOV             CS:FINISH, 1
+        
         PUSH            DS
         PUSHA   
         XOR             BP,  BP
@@ -186,23 +187,23 @@ TIMER   PROC
 
         CMP             FINISH, 1
         JNZ             @@3
-        MOV             TIME, 0
+        MOV             TIME,   0
         MOV             FINISH, 0
-        CMP             STATE, 64
+        CMP             STATE,  64
         JE              @@1
-        MOV             STATE, 64
+        MOV             STATE,  64
         CALL            VERTRET
         CALL            RESTORE
         JMP             @@1
 
-@@3:    CMP             STATE, 12
+@@3:    CMP             STATE,  12
         JB              @@1
         INC             TIME
-        CMP             TIME, ACTIVATE
+        CMP             TIME,   ACTIVATE
         JNE             @@2
         CALL            SAVE
 
-@@2:    CMP             TIME, ACTIVATE
+@@2:    CMP             TIME,   ACTIVATE
         JNA             @@1
         CALL            VERTRET
         CALL            FADE
@@ -220,14 +221,14 @@ TIMER   ENDP
 
 
 VERTRET PROC
-        MOV             DX,   03DAH
+        MOV             DX,     03DAH
 
-@@1:    IN              AL,   DX
-        TEST            AL,   8
+@@1:    IN              AL,     DX
+        TEST            AL,     8
         JZ              @@1
 
-@@2:    IN              AL,   DX
-        TEST            AL,   8
+@@2:    IN              AL,     DX
+        TEST            AL,     8
         JNZ             @@2
         RET
 VERTRET ENDP
@@ -239,26 +240,26 @@ UNLOAD  PROC
         PUSH            DX
         PUSH            AX
 
-        MOV             AX,   2509H
-        LDS             DX,   CS:KBHANDLER
+        MOV             AX,     2509H
+        LDS             DX,     CS:KBHANDLER
         INT             21H
 
-        MOV             AX,   251CH
-        LDS             DX,   CS:TIMERHANDLER
+        MOV             AX,     251CH
+        LDS             DX,     CS:TIMERHANDLER
         INT             21H
 
-        MOV             AH,   25H
-        MOV             AL,   PROCESS_INT
-        LDS             DX,   CS:MULTIPLEX
+        MOV             AH,     25H
+        MOV             AL,     PROCESS_INT
+        LDS             DX,     CS:MULTIPLEX
         INT             21H
 
-        MOV             ES,   CS:2CH
-        MOV             AH,   49H
+        MOV             ES,     CS:2CH
+        MOV             AH,     49H
         INT             21H
 
         PUSH            CS
         POP             ES
-        MOV             AH,   49H
+        MOV             AH,     49H
         INT             21H
 
         POP             AX
@@ -270,118 +271,118 @@ UNLOAD  ENDP
 
 
 MULTY   PROC
-        CMP             AH,   0C8H
+        CMP             AH,     0C8H
         JNE             @@1
-        CMP             AL,   0
+        CMP             AL,     0
         JE              @@2
-        CMP             AL,   1
+        CMP             AL,     1
         JNE             @@1
         CALL            UNLOAD
         IRET
 
-@@2:    MOV             AL,   0FFH
-        MOV             DX,   6772H
-        MOV             CX,   6162H
+@@2:    MOV             AL,     0FFH
+        MOV             DX,     6772H
+        MOV             CX,     6162H
         IRET
 
 @@1:    JMP             CS:MULTIPLEX
 MULTY   ENDP
 
 START:  CALL            ARGS
-        MOV             AH,   0C8H
-        MOV             AL,   0
+        MOV             AH,     0C8H
+        MOV             AL,     0
         INT             PROCESS_INT
-        CMP             AL,   0FFH
+        CMP             AL,     0FFH
         JNE             @@2
-        CMP             DX,   6772H
+        CMP             DX,     6772H
         JNE             @@2
-        CMP             CX,   6162H
+        CMP             CX,     6162H
         JE              @@1
         
 @@2:    CLI
-        MOV             AX,   3509H
+        MOV             AX,     3509H
         INT             21H
-        MOV             WORD  PTR KBHANDLER, BX
-        MOV             WORD  PTR KBHANDLER+2, ES
+        MOV             WORD    PTR KBHANDLER, BX
+        MOV             WORD    PTR KBHANDLER+2, ES
 
-        MOV             AX,   351CH
+        MOV             AX,     351CH
         INT             21H
-        MOV             WORD  PTR TIMERHANDLER, BX
-        MOV             WORD  PTR TIMERHANDLER+2, ES
+        MOV             WORD    PTR TIMERHANDLER, BX
+        MOV             WORD    PTR TIMERHANDLER+2, ES
 
-        MOV             AH,   35H
-        MOV             AL,   PROCESS_INT
+        MOV             AH,     35H
+        MOV             AL,     PROCESS_INT
         INT             21H
-        MOV             WORD  PTR MULTIPLEX, BX
-        MOV             WORD  PTR MULTIPLEX+2, ES
+        MOV             WORD    PTR MULTIPLEX, BX
+        MOV             WORD    PTR MULTIPLEX+2, ES
 
-        MOV             AX,   2509H
-        MOV             DX,   OFFSET KB
-        INT             21H
-
-        MOV             AX,   251CH
-        MOV             DX,   OFFSET TIMER
+        MOV             AX,     2509H
+        MOV             DX,     OFFSET KB
         INT             21H
 
-        MOV             AH,   25H
-        MOV             AL,   PROCESS_INT
-        MOV             DX,   OFFSET MULTY
+        MOV             AX,     251CH
+        MOV             DX,     OFFSET TIMER
+        INT             21H
+
+        MOV             AH,     25H
+        MOV             AL,     PROCESS_INT
+        MOV             DX,     OFFSET MULTY
         INT             21H
         STI
 
-        MOV             AX,   3100H
-        MOV             DX,   (START-BEGIN+1CFH)/16
+        MOV             AX,     3100H
+        MOV             DX,     (START-BEGIN+1CFH)/16
         INT             21H
 
-@@1:    MOV             AX,   4C01H
+@@1:    MOV             AX,     4C01H
         INT             21H
 
 ARGS    PROC
-        MOV             SI,   80H
+        MOV             SI,     80H
         LODSB
-        CMP             AL,   0
+        CMP             AL,     0
         JNZ             @@1
 
         JMP             @@3
 
 @@1:    LODSB
 
-        CMP             AL,   20H
+        CMP             AL,     20H
         JE              @@1
 
-        CMP             AL,   '/'
+        CMP             AL,     '/'
         JNE             @@3
 
         LODSB
 
-        CMP             AL,   'u'
+        CMP             AL,     'u'
         JE              @@4
 
-        CMP             AL,   'U'
+        CMP             AL,     'U'
         JE              @@4
 
         JMP             @@3
 
-@@4:    MOV             AH,   0C8H
-        MOV             AL,   0
+@@4:    MOV             AH,     0C8H
+        MOV             AL,     0
         INT             PROCESS_INT
 
-        CMP             AL,   0FFH
+        CMP             AL,     0FFH
         JNE             @@5
 
-        CMP             DX,   6772H
+        CMP             DX,     6772H
         JNE             @@5
 
-        CMP             CX,   6162H
+        CMP             CX,     6162H
         JNE             @@5
 
-        MOV             AX,   0C801H
+        MOV             AX,     0C801H
         INT             PROCESS_INT
 
-        MOV             AX,   4C00H
+        MOV             AX,     4C00H
         INT             21H
 
-@@5:    MOV             AX,   4C01H
+@@5:    MOV             AX,     4C01H
         INT             21H
         
 @@3:    RET
