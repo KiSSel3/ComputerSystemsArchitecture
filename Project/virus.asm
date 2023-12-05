@@ -12,7 +12,7 @@ BEGIN:  JMP             START
         TIMERHANDLER    DD    0
         MULTIPLEX       DD    0
         TIME            DW    0
-        STATE           DB    64
+        STATE           DB    16
         FINISH          DB    0
 
         PNTR            DB    0
@@ -33,7 +33,7 @@ KB      PROC
         MOV             DS,  AX
         MOV             BX,  DS:[1CH]
         IN              AL,  60H
-        CMP             AL,  64
+        CMP             AL,  16
         JA              @@5
         DEC             BX
         DEC             BX
@@ -107,7 +107,7 @@ CALC    ENDP
 
 
 SAVE    PROC
-        MOV             CX,   64
+        MOV             CX,   16
         XOR             BX,   BX
 @@1:    MOV             DX,   3C7H
         MOV             AL,   CL
@@ -130,7 +130,7 @@ SAVE    ENDP
 
 
 RESTORE PROC
-        MOV             CX,   64
+        MOV             CX,   16
         XOR             BX,   BX
 @@1:    MOV             DX,   3C8H
         MOV             AL,   CL
@@ -152,7 +152,7 @@ RESTORE ENDP
 
 
 FADE    PROC
-        MOV             CX,   64
+        MOV             CX,   16
         XOR             BX,   BX
 @@1:    MOV             DX,   3C8H
         MOV             AL,   CL
@@ -189,14 +189,14 @@ TIMER   PROC
         JNZ             @@3
         MOV             TIME,   0
         MOV             FINISH, 0
-        CMP             STATE,  64
+        CMP             STATE,  16
         JE              @@1
-        MOV             STATE,  64
+        MOV             STATE,  16
         CALL            VERTRET
         CALL            RESTORE
         JMP             @@1
 
-@@3:    CMP             STATE,  12
+@@3:    CMP             STATE,  1
         JB              @@1
         INC             TIME
         CMP             TIME,   ACTIVATE
